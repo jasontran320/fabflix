@@ -170,5 +170,4 @@ buildNumber.properties
 # End of https://www.gitignore.io/api/java,maven,eclipse,java-web,intellij
 
 movie-data.sql
-createtable.sql
 trash.txt
