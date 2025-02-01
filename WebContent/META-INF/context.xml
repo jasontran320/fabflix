@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
-    <!-- Defines a Data Source Connecting to localhost moviedbexample-->
-    <!-- username="mytestuser" -->
-    <!-- password="My6$Password" -->
-    <Resource name="jdbc/moviedb"
-              auth="Container"
-              driverClassName="com.mysql.cj.jdbc.Driver"
-              type="javax.sql.DataSource"
-              username="mytestuser"
-              password="My6$Password"
-              url="jdbc:mysql://localhost:3306/moviedb"
-              maxTotal="100"
-              maxIdle="30"
-              maxWaitMillis="10000"
-              initialSize="10"
-              validationQuery="SELECT 1"
-              testOnBorrow="true"
-              testWhileIdle="true"
-              timeBetweenEvictionRunsMillis="10000"/>
+    <Resource
+            name="jdbc/moviedb"
+            auth="Container"
+            driverClassName="com.mysql.cj.jdbc.Driver"
+            type="javax.sql.DataSource"
+            username="mytestuser"
+            password="My6$Password"
+            url="jdbc:mysql://localhost:3306/moviedb"
+            maxTotal="20"
+            maxIdle="10"
+            maxWaitMillis="4000"
+            initialSize="5"
+            minIdle="3"
+            removeAbandonedTimeout="60"
+            removeAbandonedOnBorrow="true"
+            removeAbandonedOnMaintenance="true"
+            validationQuery="SELECT 1"
+            testOnBorrow="true"
+            testWhileIdle="true"
+            timeBetweenEvictionRunsMillis="30000"/>
 </Context>

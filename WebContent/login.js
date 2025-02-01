@@ -4,12 +4,8 @@
 
 let login_form = $("#login_form");
 
-/**
- * Handle the data returned by LoginServlet
- * @param resultDataString jsonObject
- */
 function validateLoginForm() {
-    $("#login_error_message").text(""); // Clear previous messages
+    $("#login_error_message").text("");
     const username = $("input[name=username]").val();
     const password = $("input[name=password]").val();
 
@@ -32,14 +28,26 @@ function validateLoginForm() {
     return true;
 }
 
-function handleLoginResult(resultDataString) {
-    let resultDataJson = JSON.parse(resultDataString);
-    $("#login_error_message").text(""); // Clear previous messages
+function handleLoginResult(resultData, textStatus, xhr) {
+    $("#login_error_message").text("");
+    try {
+        let resultDataJson;
+        if (typeof resultData === 'string') {
+            resultDataJson = JSON.parse(resultData);
+        } else {
+            resultDataJson = resultData;
+        }
 
-    if (resultDataJson["status"] === "success") {
-        window.location.replace("index.html");
-    } else {
-        $("#login_error_message").text(resultDataJson["message"]);
+        if (resultDataJson["status"] === "success") {
+            window.location.replace("index.html");
+        } else {
+            $("#login_error_message").text(resultDataJson["message"]);
+        }
+    } catch (error) {
+        console.error("Response parsing error:", error);
+        $("#login_error_message").text(
+            "An unexpected error occurred. Please try again later."
+        );
     }
 }
 
@@ -53,15 +61,32 @@ function submitLoginForm(formSubmitEvent) {
     $.ajax("api/login", {
         method: "POST",
         data: login_form.serialize(),
+        dataType: "json",
         success: handleLoginResult,
-        error: function(xhr) {
-            const errorJson = JSON.parse(xhr.responseText);
-            $("#login_error_message").text(
-                errorJson.message || "Server error occurred"
-            );
+        error: function(xhr, status, error) {
+            console.error("Login error:", status, error);
+            try {
+                if (xhr.responseJSON) {
+                    $("#login_error_message").text(
+                        xhr.responseJSON.message || "Server error occurred"
+                    );
+                } else if (xhr.responseText) {
+                    const errorJson = JSON.parse(xhr.responseText);
+                    $("#login_error_message").text(
+                        errorJson.message || "Server error occurred"
+                    );
+                } else {
+                    $("#login_error_message").text(
+                        "Unable to connect to the server. Please try again later."
+                    );
+                }
+            } catch (e) {
+                $("#login_error_message").text(
+                    "An unexpected error occurred. Please try again later."
+                );
+            }
         }
     });
 }
 
-// Bind the submit action of the form to a handler function
 login_form.submit(submitLoginForm);
