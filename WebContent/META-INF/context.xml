@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
-    <!-- Defines a Data Source Connecting to localhost moviedbexample-->
-    <!-- username="mytestuser" -->
-    <!-- password="My6$Password" -->
     <Resource name="jdbc/moviedb"
               auth="Container"
               driverClassName="com.mysql.cj.jdbc.Driver"
@@ -10,12 +7,12 @@
               username="mytestuser"
               password="My6$Password"
               url="jdbc:mysql://localhost:3306/moviedb"
-              maxTotal="100"
-              maxIdle="30"
-              maxWaitMillis="10000"
-              initialSize="10"
+              maxTotal="20"
+              maxIdle="10"
+              maxWaitMillis="5000"
+              initialSize="5"
               validationQuery="SELECT 1"
               testOnBorrow="true"
-              testWhileIdle="true"
-              timeBetweenEvictionRunsMillis="10000"/>
+              testWhileIdle="false"
+              timeBetweenEvictionRunsMillis="15000"/>
 </Context>

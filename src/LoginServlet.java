@@ -26,7 +26,7 @@ public class LoginServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json"); // Add this line
+        response.setContentType("application/json");
         String email = request.getParameter("username");
         String password = request.getParameter("password");
         JsonObject responseJsonObject = new JsonObject();
