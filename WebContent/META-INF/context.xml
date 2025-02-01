@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <Context>
-
     <!-- Defines a Data Source Connecting to localhost moviedbexample-->
+    <!-- username="mytestuser" -->
+    <!-- password="My6$Password" -->
     <Resource name="jdbc/moviedb"
               auth="Container"
               driverClassName="com.mysql.cj.jdbc.Driver"
               type="javax.sql.DataSource"
               username="mytestuser"
               password="My6$Password"
-              url="jdbc:mysql://localhost:3306/moviedb"/>
+              url="jdbc:mysql://localhost:3306/moviedb"
+              maxTotal="100"
+              maxIdle="30"
+              maxWaitMillis="10000"
+              initialSize="10"
+              validationQuery="SELECT 1"
+              testOnBorrow="true"
+              testWhileIdle="true"
+              timeBetweenEvictionRunsMillis="10000"/>
 </Context>

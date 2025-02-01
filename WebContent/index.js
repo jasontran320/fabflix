@@ -1,55 +1,30 @@
-function handleMovieListResult(resultData) {
-    console.log("handleMovieListResult: populating movie table from resultData");
-
-    let movieTableBodyElement = jQuery("#movie_table_body");
-
-    for (let i = 0; i < resultData.length; i++) {
-        let movieData = resultData[i];
-        let rowHTML = "";
-        rowHTML += "<tr>";
-
-        // Movie title with link
-        rowHTML += "<td><a href='single-movie.html?id=" + movieData["movie_id"] + "'>" +
-            movieData["movie_title"] + "</a></td>";
-
-        // Year
-        rowHTML += "<td>" + movieData["movie_year"] + "</td>";
-
-        // Director
-        rowHTML += "<td>" + movieData["movie_director"] + "</td>";
-
-        // Genres (up to 3)
-        rowHTML += "<td>";
-        let genres = movieData["genres"];
-        genres.forEach((genre, index) => {
-            rowHTML += genre["genre_name"];
-            if (index < genres.length - 1) rowHTML += ", ";
+function loadGenres() {
+    $.get('api/genres', (data) => {
+        let genresHTML = '';
+        data.forEach(genre => {
+            genresHTML += `<a href="movie-list.html?genre=${genre.id}">${genre.name}</a>`;
         });
-        rowHTML += "</td>";
-
-        // Stars (up to 3)
-        rowHTML += "<td>";
-        let stars = movieData["stars"];
-        stars.forEach((star, index) => {
-            rowHTML += "<a href='single-star.html?id=" + star["star_id"] + "'>" +
-                star["star_name"] + "</a>";
-            if (index < stars.length - 1) rowHTML += ", ";
-        });
-        rowHTML += "</td>";
-
-        // Rating
-        rowHTML += "<td>" + movieData["movie_rating"] + "</td>";
-
-        rowHTML += "</tr>";
-
-        movieTableBodyElement.append(rowHTML);
-    }
+        $('#browse_genres').html(genresHTML);
+    });
 }
 
-// Makes the HTTP GET request and registers on success callback function handleMovieListResult
-jQuery.ajax({
-    dataType: "json",
-    method: "GET",
-    url: "api/movies",
-    success: (resultData) => handleMovieListResult(resultData)
+function initTitleBrowse() {
+    const chars = '*0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    let titlesHTML = '';
+    chars.forEach(char => {
+        titlesHTML += `<a href="movie-list.html?startsWith=${char}">${char}</a>`;
+    });
+    $('#browse_titles').html(titlesHTML);
+}
+
+$('#search_form').submit((event) => {
+    event.preventDefault();
+    const formData = $('#search_form').serializeArray()
+        .filter(item => item.value.trim() !== '');
+    window.location.href = 'movie-list.html?' + $.param(formData);
+});
+
+$(document).ready(() => {
+    loadGenres();
+    initTitleBrowse();
 });

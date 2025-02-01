@@ -84,5 +84,6 @@ ALTER TABLE genres ADD INDEX idx_genre_name (id, name);
 ALTER TABLE stars_in_movies ADD INDEX idx_star_movie (movieId, starId);
 ALTER TABLE stars ADD INDEX idx_star_lookup (id, name);
 
-
+-- For email lookups
+ALTER TABLE customers ADD UNIQUE INDEX idx_email (email);
 
