@@ -38,14 +38,18 @@ function displayMovies(data) {
         <tbody>`;
 
     data.movies.forEach(movie => {
-        const genres = movie.genres.map(g =>
-            `<a href="movie-list.html?genre=${g.genre_id}">${g.genre_name}</a>`
-        ).join(', ');
+        const genres = (movie.genres && movie.genres.length > 0)
+            ? movie.genres.map(g =>
+                `<a href="movie-list.html?genre=${g.genre_id}">${g.genre_name}</a>`
+            ).join(', ')
+            : 'N/A';
 
-        const stars = movie.stars.map(s =>
-            `<a href="single-star.html?id=${s.star_id}">${s.star_name}</a>`
-        ).join(', ');
-
+        // Handle empty stars array
+        const stars = (movie.stars && movie.stars.length > 0)
+            ? movie.stars.map(s =>
+                `<a href="single-star.html?id=${s.star_id}">${s.star_name}</a>`
+            ).join(', ')
+            : 'N/A';
         html += `<tr>
             <td><a href="single-movie.html?id=${movie.movie_id}">${movie.movie_title}</a></td>
             <td>${movie.movie_year}</td>

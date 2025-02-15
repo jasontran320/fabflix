@@ -76,6 +76,12 @@ CREATE TABLE ratings (
     FOREIGN KEY (movieId) REFERENCES movies(id)
 );
 
+CREATE TABLE employees (
+    email VARCHAR(50) PRIMARY KEY,
+    password VARCHAR(20) NOT NULL,
+    fullname VARCHAR(100)
+);
+
 -- For genre lookups
 ALTER TABLE genres_in_movies ADD INDEX idx_genre_movie (movieId, genreId);
 ALTER TABLE genres ADD INDEX idx_genre_name (id, name);

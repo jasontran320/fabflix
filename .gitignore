@@ -171,3 +171,6 @@ buildNumber.properties
 
 movie-data.sql
 trash.txt
+
+/XMLParser/src/main/resources
+XMLParser/parser_log.txt

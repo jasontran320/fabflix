@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
 import javax.sql.DataSource;
@@ -15,8 +16,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-@WebServlet(name = "LoginServlet", urlPatterns = "/api/login")
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "EmployeeLoginServlet", urlPatterns = "/api/dashboard-login")
+public class EmployeeLoginServlet extends HttpServlet {
     private DataSource dataSource;
 
     public void init(ServletConfig config) {
@@ -48,39 +49,41 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-            String email = request.getParameter("username");
+            String email = request.getParameter("email");
             String password = request.getParameter("password");
-            System.out.println("Checking credentials for email: " + email);
+            System.out.println("Checking employee credentials for email: " + email);
 
             try (Connection conn = dataSource.getConnection()) {
-                String emailQuery = "SELECT id, password FROM customers WHERE email = ?";
-                try (PreparedStatement emailStatement = conn.prepareStatement(emailQuery)) {
-                    emailStatement.setString(1, email);
+                String query = "SELECT password, fullname FROM employees WHERE email = ?";
+                try (PreparedStatement statement = conn.prepareStatement(query)) {
+                    statement.setString(1, email);
                     System.out.println("Executing SQL query...");
-                    try (ResultSet emailRs = emailStatement.executeQuery()) {
-                        if (!emailRs.next()) {
-                            System.out.println("No user found with email: " + email);
+                    try (ResultSet rs = statement.executeQuery()) {
+                        if (!rs.next()) {
+                            System.out.println("No employee found with email: " + email);
                             responseJsonObject.addProperty("status", "fail");
-                            responseJsonObject.addProperty("message", "Incorrect email address");
-                            responseJsonObject.addProperty("field", "email");
+                            responseJsonObject.addProperty("message", "Invalid email");
                         } else {
-                            String encryptedPassword = emailRs.getString("password");
-                            String userId = emailRs.getString("id");
-                            System.out.println("Found user with ID: " + userId);
+                            String encryptedPassword = rs.getString("password");
+                            String fullName = rs.getString("fullname");
 
                             // Use StrongPasswordEncryptor to verify the password
                             boolean success = new StrongPasswordEncryptor().checkPassword(password, encryptedPassword);
 
                             if (!success) {
-                                System.out.println("Password mismatch for user: " + email);
+                                System.out.println("Password mismatch for employee: " + email);
                                 responseJsonObject.addProperty("status", "fail");
-                                responseJsonObject.addProperty("message", "Incorrect password");
-                                responseJsonObject.addProperty("field", "password");
+                                responseJsonObject.addProperty("message", "Invalid password");
                             } else {
-                                System.out.println("Login successful for user: " + email);
-                                User user = new User(email);
-                                user.setId(userId);
-                                request.getSession().setAttribute("user", user);
+                                System.out.println("Login successful for employee: " + email);
+                                Employee employee = new Employee(email);
+                                employee.setFullName(fullName);
+
+                                // Set both employee and isEmployee attributes
+                                HttpSession session = request.getSession();
+                                session.setAttribute("employee", employee);
+                                session.setAttribute("isEmployee", true);
+
                                 responseJsonObject.addProperty("status", "success");
                                 responseJsonObject.addProperty("message", "Login successful");
                             }

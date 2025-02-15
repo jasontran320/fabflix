@@ -2,24 +2,16 @@ let login_form = $("#login_form");
 
 function validateLoginForm() {
     $("#login_error_message").text(""); // Clear previous messages
-    const username = $("input[name=username]").val();
+    const email = $("input[name=email]").val();
     const password = $("input[name=password]").val();
     const recaptchaResponse = grecaptcha.getResponse();
 
-    if (!username.trim()) {
-        $("#login_error_message").text("Username cannot be empty");
+    if (!email.trim()) {
+        $("#login_error_message").text("Email cannot be empty");
         return false;
     }
     if (!password.trim()) {
         $("#login_error_message").text("Password cannot be empty");
-        return false;
-    }
-    if (username.length > 50) {
-        $("#login_error_message").text("Username cannot exceed 50 characters");
-        return false;
-    }
-    if (password.length > 20) {
-        $("#login_error_message").text("Password cannot exceed 20 characters");
         return false;
     }
     if (!recaptchaResponse) {
@@ -49,7 +41,7 @@ function submitLoginForm(formSubmitEvent) {
 
     const formData = login_form.serialize() + "&g-recaptcha-response=" + grecaptcha.getResponse();
 
-    $.ajax("api/login", {
+    $.ajax("../api/dashboard-login", {
         method: "POST",
         data: formData,
         dataType: "json",

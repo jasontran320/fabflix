@@ -32,43 +32,71 @@ public class SingleStarServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
-
-        // Get star ID from request parameter
         String id = request.getParameter("id");
-        request.getServletContext().log("getting id: " + id);
-
         PrintWriter out = response.getWriter();
 
         try (Connection conn = dataSource.getConnection()) {
-            String query = "SELECT s.id as starId, s.name, s.birthYear, " +
-                    "m.id as movieId, m.title, m.year, m.director " +
+            // First check if star exists
+            String starQuery = "SELECT id as starId, name, birthYear FROM stars WHERE id = ?";
+            PreparedStatement starStmt = conn.prepareStatement(starQuery);
+            starStmt.setString(1, id);
+            ResultSet starRs = starStmt.executeQuery();
+
+            if (!starRs.next()) {
+                // Star not found
+                response.setStatus(404);
+                JsonObject errorJson = new JsonObject();
+                errorJson.addProperty("errorMessage", "Star not found");
+                out.write(errorJson.toString());
+                return;
+            }
+
+            // Star exists, get their movies (if any)
+            JsonArray jsonArray = new JsonArray();
+            JsonObject starObject = new JsonObject();
+            starObject.addProperty("star_id", starRs.getString("starId"));
+            starObject.addProperty("star_name", starRs.getString("name"));
+            starObject.addProperty("star_dob", starRs.getString("birthYear"));
+
+            // Get movies (using LEFT JOIN to include stars with no movies)
+            String movieQuery = "SELECT m.id as movieId, m.title, m.year, m.director " +
                     "FROM stars s " +
-                    "JOIN stars_in_movies sim ON s.id = sim.starId " +
-                    "JOIN movies m ON sim.movieId = m.id " +
+                    "LEFT JOIN stars_in_movies sim ON s.id = sim.starId " +
+                    "LEFT JOIN movies m ON sim.movieId = m.id " +
                     "WHERE s.id = ? " +
                     "ORDER BY m.year DESC, m.title";
 
-            PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, id);
+            PreparedStatement movieStmt = conn.prepareStatement(movieQuery);
+            movieStmt.setString(1, id);
+            ResultSet movieRs = movieStmt.executeQuery();
 
-            ResultSet rs = statement.executeQuery();
-            JsonArray jsonArray = new JsonArray();
+            if (!movieRs.next()) {
+                // No movies, but star exists
+                jsonArray.add(starObject);
+            } else {
+                do {
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("star_id", starObject.get("star_id").getAsString());
+                    jsonObject.addProperty("star_name", starObject.get("star_name").getAsString());
+                    String starDob;
+                    if (starObject.get("star_dob").isJsonNull()) {
+                        starDob = null;  // or you can assign a default value, e.g., "N/A"
+                    } else {
+                        starDob = starObject.get("star_dob").getAsString();
+                    }
+                    jsonObject.addProperty("star_dob", starDob);
 
-            while (rs.next()) {
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("star_id", rs.getString("starId"));
-                jsonObject.addProperty("star_name", rs.getString("name"));
-                jsonObject.addProperty("star_dob", rs.getString("birthYear"));
-                jsonObject.addProperty("movie_id", rs.getString("movieId"));
-                jsonObject.addProperty("movie_title", rs.getString("title"));
-                jsonObject.addProperty("movie_year", rs.getString("year"));
-                jsonObject.addProperty("movie_director", rs.getString("director"));
 
-                jsonArray.add(jsonObject);
+                    String movieId = movieRs.getString("movieId");
+                    if (movieId != null) {  // Check if movie exists
+                        jsonObject.addProperty("movie_id", movieId);
+                        jsonObject.addProperty("movie_title", movieRs.getString("title"));
+                        jsonObject.addProperty("movie_year", movieRs.getString("year"));
+                        jsonObject.addProperty("movie_director", movieRs.getString("director"));
+                    }
+                    jsonArray.add(jsonObject);
+                } while (movieRs.next());
             }
-
-            rs.close();
-            statement.close();
 
             out.write(jsonArray.toString());
             response.setStatus(200);
@@ -77,7 +105,6 @@ public class SingleStarServlet extends HttpServlet {
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("errorMessage", e.getMessage());
             out.write(jsonObject.toString());
-
             request.getServletContext().log("Error:", e);
             response.setStatus(500);
         } finally {

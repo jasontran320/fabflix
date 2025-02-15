@@ -1,7 +1,7 @@
 // Save the current page
 function savePage() {
     const currentUrl = window.location.href;
-    fetch('api/save-page?page=' + encodeURIComponent(currentUrl), {
+    fetch('../api/save-page?page=' + encodeURIComponent(currentUrl), {
         method: 'POST'
     }).then(() => {
         const returnLinks = document.querySelectorAll('.return-link');
@@ -20,7 +20,7 @@ fetch('navbar.html')
         document.body.style.paddingTop = '80px';
 
         // Check if user is employee
-        fetch('api/check-employee')
+        fetch('../api/check-employee')
             .then(response => response.json())
             .then(data => {
                 if (data.isEmployee) {
@@ -30,7 +30,9 @@ fetch('navbar.html')
                 }
             });
 
-        fetch('api/save-page')
+
+
+        fetch('../api/save-page')
             .then(response => response.text())
             .then(savedUrl => {
                 const returnLinks = document.querySelectorAll('.return-link');
@@ -40,3 +42,4 @@ fetch('navbar.html')
                 });
             });
     });
+

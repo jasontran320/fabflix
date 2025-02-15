@@ -2,6 +2,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -28,17 +30,29 @@ public class LoginFilter implements Filter {
 
         // Check if this URL is allowed to access without logging in
         if (this.isUrlAllowedWithoutLogin(httpRequest.getRequestURI())) {
-            // Keep default action: pass along the filter chain
             chain.doFilter(request, response);
             return;
         }
 
-        // Redirect to login page if the "user" attribute doesn't exist in session
-        if (httpRequest.getSession().getAttribute("user") == null) {
-            httpResponse.sendRedirect("login.html");
+        HttpSession session = httpRequest.getSession();
+
+        if (httpRequest.getRequestURI().contains("_dashboard")) {
+            // For dashboard pages, require employee login
+            if (session.getAttribute("employee") == null) {
+                String contextPath = httpRequest.getContextPath();
+                httpResponse.sendRedirect(contextPath + "/_dashboard/login.html");
+                return;
+            }
         } else {
-            chain.doFilter(request, response);
+            // For regular pages, require either user or employee login
+            if (session.getAttribute("user") == null && session.getAttribute("employee") == null) {
+                String contextPath = httpRequest.getContextPath();
+                httpResponse.sendRedirect(contextPath + "/login.html");
+                return;
+            }
         }
+
+        chain.doFilter(request, response);
     }
 
     private boolean isUrlAllowedWithoutLogin(String requestURI) {
@@ -54,6 +68,10 @@ public class LoginFilter implements Filter {
         allowedURIs.add("login.html");
         allowedURIs.add("login.js");
         allowedURIs.add("api/login");
+        // Add employee dashboard URLs
+        allowedURIs.add("_dashboard/login.html");
+        allowedURIs.add("_dashboard/login.js");
+        allowedURIs.add("api/dashboard-login");
     }
 
     public void destroy() {

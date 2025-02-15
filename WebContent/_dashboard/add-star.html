@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Star - Fabflix Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script src="navbar.js"></script>
+
+<div class="container mt-4">
+    <h2>Add New Star</h2>
+
+    <form id="add_star_form" class="mt-4">
+        <div class="form-group">
+            <label for="starName">Star Name (required)</label>
+            <input type="text" class="form-control" id="starName" name="starName" required>
+        </div>
+
+        <div class="form-group">
+            <label for="birthYear">Birth Year (optional)</label>
+            <input type="number" class="form-control" id="birthYear" name="birthYear"
+                   min="1900" max="2024">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Star</button>
+    </form>
+
+    <div id="star_message" class="alert mt-3" style="display: none;"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="add-star.js"></script>
+</body>
+</html>
