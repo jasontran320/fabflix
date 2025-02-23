@@ -17,13 +17,6 @@ function initTitleBrowse() {
     $('#browse_titles').html(titlesHTML);
 }
 
-$('#search_form').submit((event) => {
-    event.preventDefault();
-    const formData = $('#search_form').serializeArray()
-        .filter(item => item.value.trim() !== '');
-    window.location.href = 'movie-list.html?' + $.param(formData);
-});
-
 $(document).ready(() => {
     loadGenres();
     initTitleBrowse();

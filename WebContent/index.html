@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Fabflix Main</title>
+
+    <!-- jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- jQuery UI (required for autocomplete) -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+    <!-- Your custom scripts - load these last -->
+    <script src="autocomplete.js"></script>
+    <script src="index.js"></script>
+
     <style>
         .search-container {
             max-width: 500px;
@@ -40,11 +54,30 @@
         .form-group {
             margin-bottom: 1rem;
         }
+        .autocomplete-suggestions {
+            border: 1px solid #999;
+            background: #FFF;
+            overflow: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .autocomplete-suggestion {
+            padding: 8px 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .autocomplete-selected {
+            background: #F0F0F0;
+        }
+        .autocomplete-suggestions strong {
+            font-weight: normal;
+            color: #3399FF;
+        }
     </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script src="navbar.js"></script>
+
 <div class="container">
     <div class="search-container">
         <h3>Search Movies</h3>
@@ -72,7 +105,7 @@
     </div>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="index.js"></script>
+<!-- Navigation script -->
+<script src="navbar.js"></script>
 </body>
 </html>

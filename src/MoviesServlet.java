@@ -48,8 +48,14 @@ public class MoviesServlet extends HttpServlet {
 
             String title = request.getParameter("title");
             if (title != null && !title.isEmpty()) {
-                baseQuery.append(" AND m.title LIKE ?");
-                params.add("%" + title + "%"); //if you want prefix substring matching then params.add(title + "%"). Similarly for the other categories
+                // Convert search terms for boolean mode full-text search
+                String[] words = title.trim().split("\\s+");
+                StringBuilder searchPattern = new StringBuilder();
+                for (String word : words) {
+                    searchPattern.append(" +").append(word).append("*");
+                }
+                baseQuery.append(" AND MATCH(m.title) AGAINST(? IN BOOLEAN MODE)");
+                params.add(searchPattern.toString());
             }
 
             String year = request.getParameter("year");

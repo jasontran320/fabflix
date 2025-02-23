@@ -93,3 +93,5 @@ ALTER TABLE stars ADD INDEX idx_star_lookup (id, name);
 -- For email lookups
 ALTER TABLE customers ADD UNIQUE INDEX idx_email (email);
 
+-- Add FULLTEXT index to movies table
+ALTER TABLE movies ADD FULLTEXT INDEX ft_movies_title (title);
