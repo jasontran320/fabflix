@@ -52,9 +52,12 @@ $(document).ready(function() {
             handleLookup(request.term, response);
         },
         select: function(event, ui) {
-            // Redirect to single movie page when an item is selected
             window.location.href = `single-movie.html?id=${ui.item.movieId}`;
             return false;
+        }
+    }).on('focus', function() {
+        if (this.value.length >= 3) {
+            $(this).autocomplete('search');
         }
     });
 
