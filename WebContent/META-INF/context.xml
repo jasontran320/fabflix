@@ -9,7 +9,7 @@
               type="javax.sql.DataSource"
               username="mytestuser"
               password="My6$Password"
-              url="jdbc:mysql://master-instance-ip:3306/moviedb?autoReconnect=true&amp;allowPublicKeyRetrieval=true&amp;useSSL=false"/>
+              url="jdbc:mysql://host.docker.internal:3306/murphymovies?autoReconnect=true&amp;allowPublicKeyRetrieval=true&amp;useSSL=false"/>
 
     <!-- Read data source (slave) -->
     <Resource name="jdbc/MySQLReadOnly"
@@ -20,5 +20,5 @@
               type="javax.sql.DataSource"
               username="mytestuser"
               password="My6$Password"
-              url="jdbc:mysql://slave-instance-ip:3306/moviedb?autoReconnect=true&amp;allowPublicKeyRetrieval=true&amp;useSSL=false"/>
+              url="jdbc:mysql://host.docker.internal:3306/murphymovies?autoReconnect=true&amp;allowPublicKeyRetrieval=true&amp;useSSL=false"/>
 </Context>
