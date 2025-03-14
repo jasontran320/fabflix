@@ -1,3 +1,5 @@
+package login;
+
 public class User {
     private final String username;
     private String id;

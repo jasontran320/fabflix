@@ -1,5 +1,8 @@
+package app;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.jsonwebtoken.Claims;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -32,14 +35,23 @@ public class CartServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
         HttpSession session = request.getSession();
         JsonObject responseJsonObject = new JsonObject();
 
+        // Get user information from JWT
+        Claims claims = (Claims) request.getAttribute("claims");
+        String userId = claims != null ? claims.getSubject() : "anonymous";
+
+        // Log the user accessing their cart
+        System.out.println("Cart accessed by user: " + userId);
+
         // Get cart from session
-        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute("cart");
+        String cartKey = "cart_" + userId;
+        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute(cartKey);
         if (cart == null) {
             cart = new HashMap<>();
-            session.setAttribute("cart", cart);
+            session.setAttribute(cartKey, cart);
         }
 
         // Convert cart to JSON array with movie details
@@ -78,22 +90,29 @@ public class CartServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
         HttpSession session = request.getSession();
         String movieId = request.getParameter("movieId");
         String action = request.getParameter("action");
         Integer quantity = request.getParameter("quantity") != null ?
                 Integer.parseInt(request.getParameter("quantity")) : 1;
 
-        System.out.println("POST request received:");
+        // Get user information from JWT
+        Claims claims = (Claims) request.getAttribute("claims");
+        String userId = claims != null ? claims.getSubject() : "anonymous";
+
+        System.out.println("POST request received for user: " + userId);
         System.out.println("movieId: " + movieId);
         System.out.println("action: " + action);
         System.out.println("quantity: " + quantity);
 
-        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute("cart");
+        // Get cart from session using user-specific key
+        String cartKey = "cart_" + userId;
+        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute(cartKey);
         if (cart == null) {
             cart = new HashMap<>();
-            session.setAttribute("cart", cart);
-            System.out.println("Created new cart");
+            session.setAttribute(cartKey, cart);
+            System.out.println("Created new cart for user: " + userId);
         }
 
         System.out.println("Cart before: " + cart);

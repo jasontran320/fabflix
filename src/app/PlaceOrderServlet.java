@@ -1,5 +1,8 @@
+package app;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.jsonwebtoken.Claims;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -13,9 +16,7 @@ import jakarta.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Map;
-
 
 @WebServlet("/api/order")
 public class PlaceOrderServlet extends HttpServlet {
@@ -30,12 +31,32 @@ public class PlaceOrderServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
         String creditCard = request.getParameter("creditCard");
         String expiration = request.getParameter("expiration");
 
         JsonObject responseJsonObject = new JsonObject();
+
+        // Get user information from JWT
+        Claims claims = (Claims) request.getAttribute("claims");
+        if (claims == null) {
+            responseJsonObject.addProperty("status", "fail");
+            responseJsonObject.addProperty("message", "Authentication required");
+            response.getWriter().write(responseJsonObject.toString());
+            return;
+        }
+
+        String userEmail = claims.getSubject();
+        String userId = claims.get("userId", String.class);
+
+        if (userId == null) {
+            responseJsonObject.addProperty("status", "fail");
+            responseJsonObject.addProperty("message", "User ID not found in token. You are logged in as an employee");
+            response.getWriter().write(responseJsonObject.toString());
+            return;
+        }
 
         try (Connection conn = dataSource.getConnection()) {
             // Verify credit card
@@ -48,14 +69,14 @@ public class PlaceOrderServlet extends HttpServlet {
             ccStmt.setDate(4, Date.valueOf(expiration));
 
             if (ccStmt.executeQuery().next()) {
-                // Get cart
+                // Get cart using the user-specific key from session
                 HttpSession session = request.getSession();
-                Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute("cart");
+                String cartKey = "cart_" + userEmail;
+                Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute(cartKey);
 
                 if (cart != null && !cart.isEmpty()) {
                     // Create JsonArray for order details
                     JsonArray orderItems = new JsonArray();
-                    String customerId = ((User) session.getAttribute("user")).getId();
 
                     // Get full movie details for each cart item
                     String movieQuery = "SELECT title, price FROM movies WHERE id = ?";
@@ -67,7 +88,6 @@ public class PlaceOrderServlet extends HttpServlet {
 
                     double totalPrice = 0.0;
 
-                    // Inside the for loop, after getting the sale ID:
                     for (Map.Entry<String, Integer> entry : cart.entrySet()) {
                         String movieId = entry.getKey();
                         Integer quantity = entry.getValue();
@@ -78,7 +98,7 @@ public class PlaceOrderServlet extends HttpServlet {
 
                         if (movieRs.next()) {
                             // Record sale first to get the ID
-                            saleStmt.setString(1, customerId);
+                            saleStmt.setString(1, userId);
                             saleStmt.setString(2, movieId);
                             saleStmt.setInt(3, quantity);
                             saleStmt.executeUpdate();
@@ -111,7 +131,7 @@ public class PlaceOrderServlet extends HttpServlet {
                     responseJsonObject.add("orderData", orderData);
 
                     // Clear cart after everything is done
-                    session.removeAttribute("cart");
+                    session.removeAttribute(cartKey);
                 } else {
                     responseJsonObject.addProperty("status", "fail");
                     responseJsonObject.addProperty("message", "Cart is empty");

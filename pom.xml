@@ -37,16 +37,37 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
+
+        <!-- Password encryption -->
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
             <version>1.9.3</version>
         </dependency>
+
+        <!-- JWT dependencies -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <finalName>cs122b-winter25-jasontran</finalName>
-        <sourceDirectory>src</sourceDirectory>
+        <sourceDirectory>${endpointDir}</sourceDirectory>
         <plugins>
             <!-- Maven Compiler Plugin -->
             <plugin>
@@ -64,8 +85,63 @@
                 <version>3.3.2</version>
                 <configuration>
                     <warSourceDirectory>WebContent</warSourceDirectory>
+                    <warSourceExcludes>${excludes}</warSourceExcludes>
                 </configuration>
+            </plugin>
+
+            <!-- Build Helper Maven Plugin for common sources -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/common</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Login Service Profile -->
+        <profile>
+            <id>login</id>
+            <properties>
+                <endpointDir>src/login</endpointDir>
+                <!-- Exclude main app files from login service -->
+                <excludes>**/index.html, **/index.js, **/navbar.html, **/navbar.js, **/add-movie.html, **/add-movie.js, **/add-star.js, **/add-star.html, autocomplete.js, cart.html, cart.js, confirmation.html, confirmation.js, movie-list.html, movie-list.js, payment.html, payment.js, search-star.html, search-star.js, single-movie.html, single-movie.js, single-star.html, single-star.js</excludes>
+            </properties>
+        </profile>
+
+        <!-- App Service Profile -->
+        <profile>
+            <id>app</id>
+            <properties>
+                <endpointDir>src/app</endpointDir>
+                <!-- Exclude login files from app service -->
+                <excludes>**/login.html, **/login.js</excludes>
+            </properties>
+        </profile>
+
+        <!-- Default Profile (entire application) -->
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <endpointDir>src</endpointDir>
+                <excludes></excludes>
+            </properties>
+        </profile>
+    </profiles>
 </project>
