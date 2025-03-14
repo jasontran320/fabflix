@@ -31,7 +31,6 @@ public class PlaceOrderServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json");
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
         String creditCard = request.getParameter("creditCard");
