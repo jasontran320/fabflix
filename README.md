@@ -68,10 +68,6 @@ ________________________________________________________________________________
 - Total errors encountered (Invalid Information): 787
 - Number of duplicates (Already existing in database or during this session): 0
 
-## Demo
-[Video Demonstration](https://youtu.be/UfVzlpAo1nE?si=zdfJ6yPJrL5PvPcS)
-
-
 ## Connection Pooling
   - #### Include the filename/path of all code/configuration files in GitHub of using JDBC Connection Pooling(Filenames found in src)
     - AddStarServlet.java
@@ -113,11 +109,35 @@ ________________________________________________________________________________
       - WebContent/WEB-INF/web.xml
   - #### How read/write requests were routed to Master/Slave SQL?
      - Essentially this is borrowing from the aforementioned implementation of connection pools. I treated the Master and the slave SQL as 2 different backend SQL machines. 2 connection pools were defined in my context.xml, one being for the master and one being for the slave instance. Since only write operations could apply to the slave instance, as only writes there can properly allow the master to propogate any changes to its slaves, the datasource pool associated with the master ended up being called "MySQLReadWrite" to encompass its usage in read + write sql operations. I utilized datasource "MySQLReadWrite" in src files that performed insertion based queries in mysql. This composed of AddMovieServlet.java, AddStarServlet.java, and PlaceOrderServlet.java. All of these endpoints aimed to modified the database, whence why routing their operations into the master SQL was necessary. Since every other mysql service/file in my project consisted of read only operations, I assigned the datasource pool to "MySQLReadOnly" - the slave SQL. To summarize, any usage of writing into the database got assigned the master SQL, and everything else the slave SQL.  
-## Project Structure
-- Web pages interconnected via hyperlinks
-- MySQL database backend
-- Deployed on AWS infrastructure
-- Tomcat server configuration
+
+
+## Demo
+[Video Demonstration](https://youtu.be/AtRqVmQtBBk?si=jPRFi0w9YbUJv7Yk)
+
+
+## Project Structure - Microservice setup
+- #### jasontran-app
+  - `GET /api/autocomplete` - Returns auto complete content
+  - `GET /api/cart` - Returns cart content
+  - `POST /api/cart` - changes cart content
+  - `GET /api/check-employee` - Checks if current user is an employee
+  - `GET /api/genres` - Returns genres in database
+  - `GET /api/dashboard/metadata` - Returns database metadata
+  - `GET /api/movies` - Returns database metadata 
+  - `GET /api/save-page` - Returns saved page
+  - `GET /api/search-star` - Returns searched star
+  - `GET /api/single-movie` - Returns single movie info
+  - `GET /api/single-star` - Returns single star info
+  - `POST /api/save-page` - Saves current page into server
+  - `POST /api/order` - Processes an order
+  - `POST /api/dashboard/add-movie` - Adds movie through employee dashboard
+  - `POST /api/dashboard/add-star` - Adds star through employee dashboard
+- #### jasontran-login
+    - `POST /api/dashboard-login` - Logs employee in
+    - `POST /api/login` - Logs user in
+- #### yaml files
+  - fabflix2.yaml - microservice setup yaml
+  - ingress2.taml - microservice ingress setup yaml
 
 ## Contributors
 **Jason Tran**

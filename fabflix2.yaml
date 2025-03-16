@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jasontran-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jasontran-app
+  template:
+    metadata:
+      labels:
+        app: jasontran-app
+    spec:
+      containers:
+        - name: jasontran-app-container
+          image: jasontran320/cs122b-winter25-app:v1
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jasontran-app-service
+spec:
+  selector:
+    app: jasontran-app
+  ports:
+    - name: http
+      port: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jasontran-login
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jasontran-login
+  template:
+    metadata:
+      labels:
+        app: jasontran-login
+    spec:
+      containers:
+        - name: jasontran-login-container
+          image: jasontran320/cs122b-winter25-login:v1
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jasontran-login-service
+spec:
+  selector:
+    app: jasontran-login
+  ports:
+    - name: http
+      port: 8080
+  type: ClusterIP
