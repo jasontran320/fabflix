@@ -8,6 +8,8 @@ A web application deployed on AWS using Apache Tomcat and MySQL database. The ap
 - AWS Cloud Platform
 - MySQL Database
 - Java Web Technologies
+- Docker containerization
+- Kubernetes orchestration
 
 ## Features
 - Multi-page web application
@@ -18,21 +20,6 @@ A web application deployed on AWS using Apache Tomcat and MySQL database. The ap
 - Filtering and Search
 - Employee Dashboard to add and insert movies
 - XML Parser
-
-## Substring-Matching
-- Implemented substring matching in the search queries in the form '%search%', where lookup queries will execute m.title LIKE '%search%'. This was used extensively in src/MoviesServlet.java to handle the search parameters in title, directors, and star name. This effectively turns searching in any of these fields as a search for a substring in general, and not just a prefix or suffix.
-
-## Prepared Statement Usage(Files found in src)
-- AddStarServlet.java
-- CartServlet.java
-- EmployeeLoginServlet.java
-- GenresServlet.java
-- LoginServlet.java
-- MoviesServlet.java
-- PlaceOrderServlet.java
-- SearchStarServlet.java
-- SingleMovieServlet.java
-- SingleStarServlet.java
 
 ## Connection Pooling
   - #### Include the filename/path of all code/configuration files in GitHub of using JDBC Connection Pooling(Filenames found in src)
