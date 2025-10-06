@@ -55,7 +55,7 @@ CREATE TABLE customers (
     lastName VARCHAR(50) NOT NULL,
     ccId VARCHAR(20) NOT NULL,
     address VARCHAR(200) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(128) NOT NULL,
     FOREIGN KEY (ccId) REFERENCES creditcards(id)
 );
