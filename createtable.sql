@@ -56,7 +56,7 @@ CREATE TABLE customers (
     ccId VARCHAR(20) NOT NULL,
     address VARCHAR(200) NOT NULL,
     email VARCHAR(50) NOT NULL,
-    password VARCHAR(20) NOT NULL,
+    password VARCHAR(128) NOT NULL,
     FOREIGN KEY (ccId) REFERENCES creditcards(id)
 );
 
@@ -65,6 +65,7 @@ CREATE TABLE sales (
     customerId INT NOT NULL,
     movieId VARCHAR(10) NOT NULL,
     saleDate DATE NOT NULL,
+    quantity INT DEFAULT 1,
     FOREIGN KEY (customerId) REFERENCES customers(id),
     FOREIGN KEY (movieId) REFERENCES movies(id)
 );
@@ -78,7 +79,7 @@ CREATE TABLE ratings (
 
 CREATE TABLE employees (
     email VARCHAR(50) PRIMARY KEY,
-    password VARCHAR(20) NOT NULL,
+    password VARCHAR(128) NOT NULL,
     fullname VARCHAR(100)
 );
 
