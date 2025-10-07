@@ -50,13 +50,6 @@ public class PlaceOrderServlet extends HttpServlet {
         String userEmail = claims.getSubject();
         String userId = claims.get("userId", String.class);
 
-        if (userId == null) {
-            responseJsonObject.addProperty("status", "fail");
-            responseJsonObject.addProperty("message", "User ID not found in token. You are logged in as an employee");
-            response.getWriter().write(responseJsonObject.toString());
-            return;
-        }
-
         try (Connection conn = dataSource.getConnection()) {
             // Verify credit card
             String ccQuery = "SELECT id FROM creditcards WHERE id = ? AND firstName = ? " +
