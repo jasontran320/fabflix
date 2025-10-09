@@ -22,8 +22,9 @@ A web application deployed on AWS using Apache Tomcat and MySQL database. The ap
 - XML Parser
 
 ## Demo
-[Video Demonstration](https://youtu.be/AtRqVmQtBBk?si=jPRFi0w9YbUJv7Yk)
+[Video Demonstration](https://youtu.be/9ecG6aCccUk )
 
+[Slide Deck](https://docs.google.com/presentation/d/1KFt-tmGbqR5T5Dt9-LBtQLa9gqTTz-IG2lTxAxGPNiY/edit?usp=sharing)
 
 ## Project Structure - Microservice setup
 - #### jasontran-app
