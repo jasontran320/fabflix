@@ -73,6 +73,7 @@ kops create cluster \
   --name=${NAME} \
   --cloud=aws \
   --zones=us-west-2a \
+  --node-count=3 \
   --discovery-store=s3://${OIDC_BUCKET}/${NAME}/discovery
 
 # --- Apply cluster ---

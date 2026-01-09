@@ -41,45 +41,59 @@ public class CartServlet extends HttpServlet {
 
         // Get user information from JWT
         Claims claims = (Claims) request.getAttribute("claims");
-        String userId = claims != null ? claims.getSubject() : "anonymous";
+        String userEmail = claims != null ? claims.getSubject() : "anonymous";
 
-        // Log the user accessing their cart
-        System.out.println("Cart accessed by user: " + userId);
+        System.out.println("Cart accessed by user: " + userEmail);
 
         // Get cart from session
-        String cartKey = "cart_" + userId;
-        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute(cartKey);
-        if (cart == null) {
-            cart = new HashMap<>();
-            session.setAttribute(cartKey, cart);
+        String cartKey = "cart_" + userEmail;
+        Map<String, Integer> cart;
+        synchronized (session) {
+            cart = (Map<String, Integer>) session.getAttribute(cartKey);
+            if (cart == null) {
+                cart = new HashMap<>();
+                session.setAttribute(cartKey, cart);
+            }
         }
 
-        // Convert cart to JSON array with movie details
+        // Take a snapshot of the cart under lock
+        Map<String, Integer> cartSnapshot;
+        synchronized (cart) {
+            cartSnapshot = new HashMap<>(cart);
+        }
+
         JsonArray cartItems = new JsonArray();
         double totalPrice = 0;
 
         try (Connection conn = dataSource.getConnection()) {
-            for (Map.Entry<String, Integer> entry : cart.entrySet()) {
-                String movieId = entry.getKey();
-                Integer quantity = entry.getValue();
+            String query = "SELECT title, price FROM movies WHERE id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                for (Map.Entry<String, Integer> entry : cartSnapshot.entrySet()) {
+                    String movieId = entry.getKey();
+                    int quantity = entry.getValue();
 
-                String query = "SELECT title, price FROM movies WHERE id = ?";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setString(1, movieId);
-                ResultSet rs = stmt.executeQuery();
+                    stmt.setString(1, movieId);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            String title = rs.getString("title");
+                            double price = rs.getDouble("price");
 
-                if (rs.next()) {
-                    JsonObject item = new JsonObject();
-                    item.addProperty("movieId", movieId);
-                    item.addProperty("title", rs.getString("title"));
-                    item.addProperty("quantity", quantity);
-                    item.addProperty("price", rs.getDouble("price"));
-                    totalPrice += rs.getDouble("price") * quantity;
-                    cartItems.add(item);
+                            JsonObject item = new JsonObject();
+                            item.addProperty("movieId", movieId);
+                            item.addProperty("title", title);
+                            item.addProperty("quantity", quantity);
+                            item.addProperty("price", price);
+
+                            totalPrice += price * quantity;
+                            cartItems.add(item);
+                        }
+                    }
                 }
             }
+
             responseJsonObject.add("items", cartItems);
             responseJsonObject.addProperty("totalPrice", totalPrice);
+
         } catch (Exception e) {
             response.setStatus(500);
             responseJsonObject.addProperty("status", "fail");
@@ -94,25 +108,28 @@ public class CartServlet extends HttpServlet {
         HttpSession session = request.getSession();
         String movieId = request.getParameter("movieId");
         String action = request.getParameter("action");
-        Integer quantity = request.getParameter("quantity") != null ?
-                Integer.parseInt(request.getParameter("quantity")) : 1;
+        Integer quantity = request.getParameter("quantity") != null
+                ? Integer.parseInt(request.getParameter("quantity"))
+                : 1;
 
         // Get user information from JWT
         Claims claims = (Claims) request.getAttribute("claims");
-        String userId = claims != null ? claims.getSubject() : "anonymous";
+        String userEmail = claims != null ? claims.getSubject() : "anonymous";
 
-        System.out.println("POST request received for user: " + userId);
+        System.out.println("POST request received for user: " + userEmail);
         System.out.println("movieId: " + movieId);
         System.out.println("action: " + action);
         System.out.println("quantity: " + quantity);
 
         // Get cart from session using user-specific key
-        String cartKey = "cart_" + userId;
-        Map<String, Integer> cart = (Map<String, Integer>) session.getAttribute(cartKey);
-        if (cart == null) {
-            cart = new HashMap<>();
-            session.setAttribute(cartKey, cart);
-            System.out.println("Created new cart for user: " + userId);
+        String cartKey = "cart_" + userEmail;
+        Map<String, Integer> cart;
+        synchronized (session) {
+            cart = (Map<String, Integer>) session.getAttribute(cartKey);
+            if (cart == null) {
+                cart = new HashMap<>();
+                session.setAttribute(cartKey, cart);
+            }
         }
 
         System.out.println("Cart before: " + cart);
